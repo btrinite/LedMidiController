@@ -66,9 +66,12 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
-function updateStrip(color) {
+function updateStrip(idx) {
   for (var i = 0; i < NUM_LEDS; i++) {
-    pixelData[i] = color;
+    r=(((color[idx] & 0xff0000) >> 16) *255)/brightness[idx]
+    g=(((color[idx] & 0xff00) >> 8) *255)/brightness[idx]
+    b=((color[idx] & 0xff) *255)/brightness[idx]
+    pixelData[i] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
 }
@@ -82,6 +85,10 @@ const ChannelPressure = 208 // 0xD0
 const PitchBend = 224 //0xE0
 
 const Bank1_Slidder1 = 3
+const Bank1_Vol1 = 14
+
+var color= [];
+var brightness= [];
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -89,16 +96,20 @@ input.on('message', (deltaTime, message) => {
   //   [status, data1, data2]
   // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
   // information interpreting the messages.
-  //console.log(`m: ${message} d: ${deltaTime}`);
+  console.log(`m: ${message} d: ${deltaTime}`);
   [type, key, value] = message
   switch (type) {
     case ControlChange:
       switch (key) {
         case Bank1_Slidder1:
-          const color = colorwheel(map_range(value, 0, 127, 0, 255))
-          updateStrip(color)
+          color[0]=colorwheel(map_range(value, 0, 127, 0, 255))
+          updateStrip(0)
         break;
-      }
+        case Bank1_Vol1:
+          brightness[0]=map_range(value, 0, 127, 0, 255)
+          updateStrip(0)
+          break;
+        }
     break;
   }
 
