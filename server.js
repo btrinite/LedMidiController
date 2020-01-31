@@ -9,6 +9,7 @@ ws281x.init(NUM_LEDS, { gpioPin: 18 });
 
 // Set up a new input.
 const input = new midi.Input();
+var MidiDeviceIdx = -1
 
 function waitForMidiCtrl() {
   // Count the available input ports.
@@ -18,11 +19,14 @@ function waitForMidiCtrl() {
     const midiDevice = input.getPortName(i) 
     //console.log(midiDevice);
     if (midiDevice.includes('WORLDE easy control MIDI')) {
+      MidiDeviceIdx = i
       return true
     }
   }
   return false
 }
+
+
 var MidiCtrlReady = false
 do {
   MidiCtrlReady = waitForMidiCtrl()
@@ -63,11 +67,12 @@ input.on('message', (deltaTime, message) => {
   console.log(`m: ${message} d: ${deltaTime}`);
 });
 
-/*
+
  
 // Open the first available input port.
-input.openPort(1);
- 
+input.openPort(MidiDeviceIdx);
+
+
 // Sysex, timing, and active sensing messages are ignored
 // by default. To enable these message types, pass false for
 // the appropriate type in the function below.
@@ -78,11 +83,9 @@ input.openPort(1);
 input.ignoreTypes(false, false, false);
  
 // ... receive MIDI messages ...
-*/
  
 // Close the port when done.
-/*
+
 setTimeout(function() {
   input.closePort();
 }, 100000);
-*/
