@@ -68,9 +68,9 @@ setInterval(function () {
 
 function updateStrip(idx) {
   for (var i = 0; i < NUM_LEDS; i++) {
-    r=(((color[idx] & 0xff0000) >> 16) *255)/brightness[idx]
-    g=(((color[idx] & 0xff00) >> 8) *255)/brightness[idx]
-    b=((color[idx] & 0xff) *255)/brightness[idx]
+    r=(((color[idx] & 0xff0000) >> 16) *255)/brightness[0]
+    g=(((color[idx] & 0xff00) >> 8) *255)/brightness[0]
+    b=((color[idx] & 0xff) *255)/brightness[0]
     pixelData[i] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
