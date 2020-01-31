@@ -1,21 +1,33 @@
 const midi = require('midi');
 const ws281x = require('rpi-ws281x-native');
 
- 
-// Set up a new input.
-const input = new midi.Input();
- 
-// Count the available input ports.
-const nbItf = input.getPortCount();
- 
-// Get the name of a specified input port.
-for (i=0;i<nbItf;i++) {
-   console.log(input.getPortName(i));
-}
+// Setup Led Strip interface
 var NUM_LEDS = 10
 pixelData = new Uint32Array(NUM_LEDS);
- 
 ws281x.init(NUM_LEDS, { gpioPin: 18 });
+
+
+// Set up a new input.
+const input = new midi.Input();
+
+function waitForMidiCtrl() {
+  // Count the available input ports.
+  const nbItf = input.getPortCount();
+  // Get the name of a specified input port.
+  for (i=0;i<nbItf;i++) {
+    const midiDevice = input.getPortName(i) 
+    console.log(midiDevice);
+    if (midiDevice.includes('')) {
+      return true
+    }
+  }
+  return false
+}
+
+do {
+  const MidiCtrlReady = waitForMidiCtrl()
+} while (MidiCtrlReady == false);
+
 
 function rgb2Int(r, g, b) {
   return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
@@ -28,6 +40,8 @@ function colorwheel(pos) {
   else { pos -= 170; return rgb2Int(pos * 3, 255 - pos * 3, 0); }
 }
 
+/*
+
 var offset = 0;
 setInterval(function () {
   for (var i = 0; i < NUM_LEDS; i++) {
@@ -37,6 +51,7 @@ setInterval(function () {
   offset = (offset + 1) % 256;
   ws281x.render(pixelData);
 }, 1000 / 30);
+*/
 
 
 // Configure a callback.
