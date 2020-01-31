@@ -90,7 +90,7 @@ input.on('message', (deltaTime, message) => {
   // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
   // information interpreting the messages.
   //console.log(`m: ${message} d: ${deltaTime}`);
-  [type, key, value] = message.split(',')
+  [type, key, value] = message
   switch (type) {
     case ControlChange:
       switch (key) {
