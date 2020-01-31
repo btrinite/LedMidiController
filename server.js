@@ -44,6 +44,15 @@ function colorwheel(pos) {
   else { pos -= 170; return rgb2Int(pos * 3, 255 - pos * 3, 0); }
 }
 
+function map_range(value, low1, high1, low2, high2) {
+  if (value<low1) {
+    value = low1
+  }
+  if (value>high1) {
+    value = high1
+  }
+  return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
 /*
 
 var offset = 0;
@@ -57,6 +66,22 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
+function updateStrip(color) {
+  for (var i = 0; i < NUM_LEDS; i++) {
+    pixelData[i] = color;
+  }
+  ws281x.render(pixelData);  
+}
+
+const NoteOff = 128 // 0x80
+const NoteOn = 144 // 0x90
+const PolyphonicKeyPressure  = 160 // 0xA0
+const ControlChange = 176 // 0xB0
+const ProgramChange = 192 // 0xC0
+const ChannelPressure = 208 // 0xD0
+const PitchBend = 224 //0xE0
+
+const Bank1_Slidder1 = 3
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -64,7 +89,19 @@ input.on('message', (deltaTime, message) => {
   //   [status, data1, data2]
   // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
   // information interpreting the messages.
-  console.log(`m: ${message} d: ${deltaTime}`);
+  //console.log(`m: ${message} d: ${deltaTime}`);
+  [type, key, value] = message.split(',')
+  switch (type) {
+    case ControlChange:
+      switch (key) {
+        case Bank1_Slidder1:
+          const color = colorwheel(map_range(value, 0, 127, 0, 255))
+          updateStrip(color)
+        break;
+      }
+    break;
+  }
+
 });
 
 
