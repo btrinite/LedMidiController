@@ -17,15 +17,15 @@ function waitForMidiCtrl() {
   for (i=0;i<nbItf;i++) {
     const midiDevice = input.getPortName(i) 
     console.log(midiDevice);
-    if (midiDevice.includes('')) {
+    if (midiDevice.includes('blabla')) {
       return true
     }
   }
   return false
 }
-
+var MidiCtrlReady = false
 do {
-  const MidiCtrlReady = waitForMidiCtrl()
+  MidiCtrlReady = waitForMidiCtrl()
 } while (MidiCtrlReady == false);
 
 
