@@ -16,8 +16,8 @@ function waitForMidiCtrl() {
   // Get the name of a specified input port.
   for (i=0;i<nbItf;i++) {
     const midiDevice = input.getPortName(i) 
-    console.log(midiDevice);
-    if (midiDevice.includes('blabla')) {
+    //console.log(midiDevice);
+    if (midiDevice.includes('WORLDE easy control MIDI')) {
       return true
     }
   }
