@@ -2,7 +2,7 @@ const midi = require('midi');
 const ws281x = require('rpi-ws281x-native');
 
 // Setup Led Strip interface
-var NUM_LEDS = 10
+var NUM_LEDS = 150
 pixelData = new Uint32Array(NUM_LEDS);
 ws281x.init(NUM_LEDS, { gpioPin: 18 });
 
