@@ -141,29 +141,33 @@ input.on('message', (deltaTime, message) => {
   switch (type) {
     case ControlChange:
       switch (key) {
+        //Front Strip
         case Bank1_Slidder1:
-          hue[0]=Number(map_range(value, 0, 127, 0, 360))
-          hsl[0]=converter(hue[0], saturation[0], lightness[0])
-          updateHSLStrip(0)
+          color[0]=colorwheel(map_range(value, 0, 127, 0, 255))
+          updateRGBStrip(0)
           break;
+        case Bank1_Vol1:
+          brightness[0]=map_range(value, 0, 127, 0, 255)
+          updateRGBStrip(0)
+          break;
+
+        //Scene Strip
         case Bank1_Slidder2:
-          saturation[0]=Number(map_range(value, 0, 127, 0, 1))
-          hsl[0]=converter(hue[0], saturation[0], lightness[0])
-          updateHSLStrip(0)
+          hue[1]=Number(map_range(value, 0, 127, 0, 360))
+          hsl[1]=converter(hue[1], saturation[1], lightness[1])
+          updateHSLStrip(1)
           break;
         case Bank1_Slidder3:
-          lightness[0]=Number(map_range(value, 0, 127, 0, 1))
-          hsl[0]=converter(hue[0], saturation[0], lightness[0])
-          updateHSLStrip(0)
+          saturation[1]=Number(map_range(value, 0, 127, 0, 1))
+          hsl[1]=converter(hue[1], saturation[1], lightness[1])
+          updateHSLStrip(1)
           break;
         case Bank1_Slidder4:
-          color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
-          updateRGBStrip(1)
+          lightness[1]=Number(map_range(value, 0, 127, 0, 1))
+          hsl[1]=converter(hue[1], saturation[1], lightness[1])
+          updateHSLStrip(1)
           break;
-        case Bank1_Vol4:
-          brightness[1]=map_range(value, 0, 127, 0, 255)
-          updateRGBStrip(1)
-          break;
+        // Back Strip (White)
         case Bank1_Vol5:
           brightness[2]=map_range(value, 0, 127, 0, 255)
           updateRGBStrip(2)
