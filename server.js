@@ -159,15 +159,11 @@ input.on('message', (deltaTime, message) => {
           break;
         case Bank1_Vol4:
           brightness[1]=map_range(value, 0, 127, 0, 255)
-          updateStrip(1)
-          break;
-        case Bank1_Slidder5:
-          //color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
-          //updateStrip(1)
+          updateRGBStrip(1)
           break;
         case Bank1_Vol5:
           brightness[2]=map_range(value, 0, 127, 0, 255)
-          updateStrip(2)
+          updateRGBStrip(2)
           break;
             }
       break;
