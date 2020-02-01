@@ -133,8 +133,8 @@ input.on('message', (deltaTime, message) => {
           //updateStrip(1)
           break;
         case Bank1_Vol3:
-          brightness[1]=map_range(value, 0, 127, 0, 255)
-          updateStrip(1)
+          brightness[2]=map_range(value, 0, 127, 0, 255)
+          updateStrip(2)
           break;
             }
       break;
