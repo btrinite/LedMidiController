@@ -80,6 +80,10 @@ function updateStrip(idx) {
   ws281x.render(pixelData);  
 }
 
+for (var i=0; i<3; i++) {
+  updateStrip(i)
+}
+
 const NoteOff = 128 // 0x80
 const NoteOn = 144 // 0x90
 const PolyphonicKeyPressure  = 160 // 0xA0
