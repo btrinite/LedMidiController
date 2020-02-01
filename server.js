@@ -70,8 +70,8 @@ setInterval(function () {
 var indexes = [{start:0, length:40}, {start:40, length:20}, {start:60, length:20}]
 
 //RGB Mode
-var color= [rgb2Int(64, 64, 64), rgb2Int(64, 64, 64), rgb2Int(255, 255, 255)];
-var brightness= [0,0,0];
+var color= [];
+var brightness= [];
 
 //HSL Mode
 var hsl= [];
@@ -95,7 +95,9 @@ function updateHSLStrip(idx) {
 }
 
 for (var i=0; i<3; i++) {
-  updateStrip(i)
+  color[i] = gb2Int(255, 255, 255)
+  brightness[i] = 0
+  updateRGBStrip(i)
 }
 
 const NoteOff = 128 // 0x80
