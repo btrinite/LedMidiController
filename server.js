@@ -66,8 +66,12 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
+var color= [rgb2Int(64, 64, 64), rgb2Int(64, 64, 64)];
+var indexes = [{start:0, length:20}, {start:20, length:20}]
+var brightness= [0,0,0];
+
 function updateStrip(idx) {
-  for (var i = 0; i < NUM_LEDS; i++) {
+  for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
     r=(((color[idx] & 0xff0000) >> 16) * brightness[idx])/255
     g=(((color[idx] & 0xff00) >> 8) * brightness[idx])/255
     b=((color[idx] & 0xff) * brightness[idx])/255
@@ -87,8 +91,8 @@ const PitchBend = 224 //0xE0
 const Bank1_Slidder1 = 3
 const Bank1_Vol1 = 14
 
-var color= [];
-var brightness= [];
+const Bank1_Slidder2 = 4
+const Bank1_Vol2 = 15
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -110,7 +114,18 @@ input.on('message', (deltaTime, message) => {
           updateStrip(0)
           break;
         }
-    break;
+
+        case Bank1_Slidder2:
+          color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
+          updateStrip(1)
+        break;
+        case Bank1_Vol2:
+          brightness[1]=map_range(value, 0, 127, 0, 255)
+          updateStrip(1)
+          break;
+        }
+
+      break;
   }
 
 });
