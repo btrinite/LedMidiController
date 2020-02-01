@@ -140,7 +140,7 @@ input.on('message', (deltaTime, message) => {
       switch (key) {
         case Bank1_Slidder1:
           hue[0]=map_range(value, 0, 127, 0, 360)
-          hls[0]=converter(hue[0], saturation[0], lightness[0])
+          hsl[0]=converter(hue[0], saturation[0], lightness[0])
           updateHSLStrip(0)
           break;
         case Bank1_Slidder2:
