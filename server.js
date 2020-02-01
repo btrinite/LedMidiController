@@ -1,5 +1,6 @@
 const midi = require('midi');
 const ws281x = require('rpi-ws281x-native');
+const converter = require('hsl-to-rgb-for-reals');
 
 // Setup Led Strip interface
 var NUM_LEDS = 150
@@ -66,15 +67,28 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
-var color= [rgb2Int(64, 64, 64), rgb2Int(64, 64, 64), rgb2Int(255, 255, 255)];
 var indexes = [{start:0, length:40}, {start:40, length:20}, {start:60, length:20}]
+
+//RGB Mode
+var color= [rgb2Int(64, 64, 64), rgb2Int(64, 64, 64), rgb2Int(255, 255, 255)];
 var brightness= [0,0,0];
 
-function updateStrip(idx) {
+//HSL Mode
+var hsl= [];
+
+function updateRGBStrip(idx) {
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
     r=(((color[idx] & 0xff0000) >> 16) * brightness[idx])/255
     g=(((color[idx] & 0xff00) >> 8) * brightness[idx])/255
     b=((color[idx] & 0xff) * brightness[idx])/255
+    pixelData[i] = rgb2Int(r, g, b)
+  }
+  ws281x.render(pixelData);  
+}
+
+function updateHSLStrip(idx) {
+  for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
+    [r, g, b] = converter(hsl[idx])
     pixelData[i] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
@@ -101,6 +115,16 @@ const Bank1_Vol2 = 15
 const Bank1_Slidder3 = 5
 const Bank1_Vol3 = 16
 
+const Bank1_Slidder4 = 6
+const Bank1_Vol4 = 17
+
+const Bank1_Slidder5 = 7
+const Bank1_Vol5 = 18
+
+var hue=[]
+var saturation=[]
+var lightness=[]
+
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
   // The message is an array of numbers corresponding to the MIDI bytes:
@@ -113,26 +137,33 @@ input.on('message', (deltaTime, message) => {
     case ControlChange:
       switch (key) {
         case Bank1_Slidder1:
-          color[0]=colorwheel(map_range(value, 0, 127, 0, 255))
-          updateStrip(0)
-          break;
-        case Bank1_Vol1:
-          brightness[0]=map_range(value, 0, 127, 0, 255)
-          updateStrip(0)
+          hue[0]=map_range(value, 0, 127, 0, 360)
+          hls[0]=converter(hue[0], saturation[0], lightness[0])
+          updateHSLStrip(0)
           break;
         case Bank1_Slidder2:
+          saturation[0]=map_range(value, 0, 127, 0, 360)
+          hsl[0]=converter(hue[0], saturation[0], lightness[0])
+          updateHSLStrip(0)
+          break;
+        case Bank1_Slidder3:
+          saturation[0]=map_range(value, 0, 127, 0, 360)
+          hsl[0]=converter(hue[0], saturation[0], lightness[0])
+          updateHSLStrip(0)
+          break;
+        case Bank1_Slidder4:
           color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
           updateStrip(1)
           break;
-        case Bank1_Vol2:
+        case Bank1_Vol4:
           brightness[1]=map_range(value, 0, 127, 0, 255)
           updateStrip(1)
           break;
-        case Bank1_Slidder3:
+        case Bank1_Slidder5:
           //color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
           //updateStrip(1)
           break;
-        case Bank1_Vol3:
+        case Bank1_Vol5:
           brightness[2]=map_range(value, 0, 127, 0, 255)
           updateStrip(2)
           break;
