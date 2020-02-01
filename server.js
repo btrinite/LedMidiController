@@ -95,7 +95,7 @@ function updateHSLStrip(idx) {
 }
 
 for (var i=0; i<3; i++) {
-  color[i] = gb2Int(255, 255, 255)
+  color[i] = rgb2Int(255, 255, 255)
   brightness[i] = 0
   updateRGBStrip(i)
 }
