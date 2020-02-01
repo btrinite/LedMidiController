@@ -75,6 +75,9 @@ var brightness= [];
 
 //HSL Mode
 var hsl= [];
+var hue=[]
+var saturation=[]
+var lightness=[]
 
 function updateRGBStrip(idx) {
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
@@ -88,8 +91,7 @@ function updateRGBStrip(idx) {
 
 function updateHSLStrip(idx) {
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
-    [r, g, b] = converter(hsl[idx])
-    pixelData[i] = rgb2Int(r, g, b)
+    pixelData[i] = rgb2Int(hsl[idx][0], hsl[idx][1], hsl[idx][2])
   }
   ws281x.render(pixelData);  
 }
@@ -97,6 +99,9 @@ function updateHSLStrip(idx) {
 for (var i=0; i<3; i++) {
   color[i] = rgb2Int(255, 255, 255)
   brightness[i] = 0
+  hue[i]=0
+  saturation[i]=0
+  lightness[i]=0
   updateRGBStrip(i)
 }
 
@@ -123,9 +128,7 @@ const Bank1_Vol4 = 17
 const Bank1_Slidder5 = 7
 const Bank1_Vol5 = 18
 
-var hue=[]
-var saturation=[]
-var lightness=[]
+
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -139,17 +142,17 @@ input.on('message', (deltaTime, message) => {
     case ControlChange:
       switch (key) {
         case Bank1_Slidder1:
-          hue[0]=map_range(value, 0, 127, 0, 360)
+          hue[0]=Number(map_range(value, 0, 127, 0, 360))
           hsl[0]=converter(hue[0], saturation[0], lightness[0])
           updateHSLStrip(0)
           break;
         case Bank1_Slidder2:
-          saturation[0]=map_range(value, 0, 127, 0, 360)
+          saturation[0]=Number(map_range(value, 0, 127, 0, 1))
           hsl[0]=converter(hue[0], saturation[0], lightness[0])
           updateHSLStrip(0)
           break;
         case Bank1_Slidder3:
-          saturation[0]=map_range(value, 0, 127, 0, 360)
+          lightness[0]=Number(map_range(value, 0, 127, 0, 1))
           hsl[0]=converter(hue[0], saturation[0], lightness[0])
           updateHSLStrip(0)
           break;
