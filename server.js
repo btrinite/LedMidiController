@@ -94,8 +94,8 @@ const Bank1_Vol1 = 14
 const Bank1_Slidder2 = 4
 const Bank1_Vol2 = 15
 
-const Bank1_Slidder2 = 5
-const Bank1_Vol2 = 16
+const Bank1_Slidder3 = 5
+const Bank1_Vol3 = 16
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -124,11 +124,11 @@ input.on('message', (deltaTime, message) => {
           brightness[1]=map_range(value, 0, 127, 0, 255)
           updateStrip(1)
           break;
-        case Bank1_Slidder2:
+        case Bank1_Slidder3:
           //color[1]=colorwheel(map_range(value, 0, 127, 0, 255))
           //updateStrip(1)
           break;
-        case Bank1_Vol2:
+        case Bank1_Vol3:
           brightness[1]=map_range(value, 0, 127, 0, 255)
           updateStrip(1)
           break;
@@ -159,4 +159,5 @@ input.ignoreTypes(false, false, false);
 
 setInterval(function() {
   //do nothing
+  // input.closePort();
 }, 100000);
