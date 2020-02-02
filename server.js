@@ -67,7 +67,7 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
-var indexes = [{start:0, length:64}, {start:64, length:20}, {start:84, length:20}]
+var indexes = [{start:0, length:106}, {start:106, length:20}, {start:126, length:20}]
 
 //RGB Mode
 var color= [];
