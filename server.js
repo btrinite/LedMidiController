@@ -67,7 +67,7 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
-var indexes = [{start:0, length:106}, {start:106, length:20}, {start:126, length:20}]
+var indexes = [{start:0, length:106}, {start:106, length:37}, {start:143, length:20}]
 
 //RGB Mode
 var color= [];
@@ -136,7 +136,7 @@ input.on('message', (deltaTime, message) => {
   //   [status, data1, data2]
   // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
   // information interpreting the messages.
-  // console.log(`m: ${message} d: ${deltaTime}`);
+  //console.log(`m: ${message} d: ${deltaTime}`);
   [type, key, value] = message
   switch (type) {
     case ControlChange:
