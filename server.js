@@ -104,11 +104,14 @@ function updateHSLStrip(idx) {
 }
 
 for (var i=0; i<indexes.length; i++) {
+  
   color[i] = rgb2Int(255, 255, 255)
   brightness[i] = 0
+
   hue[i]=0
   saturation[i]=0
   lightness[i]=0
+  
   updateRGBStrip(i)
 }
 
@@ -118,7 +121,7 @@ lightness[CONTROL_SCENE_LEDS]=Number(map_range(32, 0, 127, 0, 1))
 hue[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 360))
 saturation[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 1))
 hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
-updateRGBStrip(CONTROL_SCENE_LEDS)
+updateHSLStrip(CONTROL_SCENE_LEDS)
 
 const NoteOff = 128 // 0x80
 const NoteOn = 144 // 0x90
