@@ -71,8 +71,8 @@ setInterval(function () {
 const indexes = [{start:0, length:106}, {start:106, length:37}, {start:143, length:2}, {start:145, length:16}, {start:161, length:2}]
 const FRONT_STRIP = 0
 const SCENE_STRIP = 1
-const BACK_STRIP = 3
 const CONTROL_FRONT_LEDS = 2
+const BACK_STRIP = 3
 const CONTROL_SCENE_LEDS = 4
 
 //RGB Mode
@@ -86,6 +86,7 @@ var saturation=[]
 var lightness=[]
 
 function updateRGBStrip(idx) {
+  console.log (`Update strip ${idx}`)
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
     r=(((color[idx] & 0xff0000) >> 16) * brightness[idx])/255
     g=(((color[idx] & 0xff00) >> 8) * brightness[idx])/255
