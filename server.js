@@ -86,7 +86,6 @@ var saturation=[]
 var lightness=[]
 
 function updateRGBStrip(idx) {
-  console.log (`Update strip ${idx}`)
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
     r=(((color[idx] & 0xff0000) >> 16) * brightness[idx])/255
     g=(((color[idx] & 0xff00) >> 8) * brightness[idx])/255
@@ -197,7 +196,7 @@ input.on('message', (deltaTime, message) => {
           break;
         // Back Strip (White)
         case Bank1_Vol5:
-          brightness[2]=map_range(value, 0, 127, 0, 255)
+          brightness[BACK_STRIP]=map_range(value, 0, 127, 0, 255)
           updateRGBStrip(BACK_STRIP)
           break;
             }
