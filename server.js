@@ -3,7 +3,7 @@ const ws281x = require('rpi-ws281x-native');
 const converter = require('hsl-to-rgb-for-reals');
 
 // Setup Led Strip interface
-var NUM_LEDS = 150
+var NUM_LEDS = 163
 pixelData = new Uint32Array(NUM_LEDS);
 ws281x.init(NUM_LEDS, { gpioPin: 18 });
 
@@ -67,7 +67,12 @@ setInterval(function () {
 }, 1000 / 30);
 */
 
-var indexes = [{start:0, length:106}, {start:106, length:37}, {start:143, length:20}]
+const indexes = [{start:0, length:106}, {start:106, length:37}, {start:143, length:2}, {start:145, length:16}, {start:161, length:2}]
+const FRONT_STRIP = 0
+const SCENE_STRIP = 1
+const BACK_STRIP = 3
+const CONTROL_FRONT_LEDS = 2
+const CONTROL_SCENE_LEDS = 4
 
 //RGB Mode
 var color= [];
@@ -96,7 +101,7 @@ function updateHSLStrip(idx) {
   ws281x.render(pixelData);  
 }
 
-for (var i=0; i<3; i++) {
+for (var i=0; i<indexes.length; i++) {
   color[i] = rgb2Int(255, 255, 255)
   brightness[i] = 0
   hue[i]=0
@@ -104,6 +109,14 @@ for (var i=0; i<3; i++) {
   lightness[i]=0
   updateRGBStrip(i)
 }
+
+brightness[CONTROL_FRONT_LEDS]=map_range(32, 0, 127, 0, 255)
+updateRGBStrip(CONTROL_FRONT_LEDS)
+lightness[CONTROL_SCENE_LEDS]=Number(map_range(32, 0, 127, 0, 1))
+hue[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 360))
+saturation[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 1))
+hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+updateRGBStrip(CONTROL_SCENE_LEDS)
 
 const NoteOff = 128 // 0x80
 const NoteOn = 144 // 0x90
@@ -143,34 +156,44 @@ input.on('message', (deltaTime, message) => {
       switch (key) {
         //Front Strip
         case Bank1_Slidder1:
-          color[0]=colorwheel(map_range(value, 0, 127, 0, 255))
-          updateRGBStrip(0)
+          color[FRONT_STRIP]=colorwheel(map_range(value, 0, 127, 0, 255))
+          color[CONTROL_FRONT_LEDS]=colorwheel(map_range(value, 0, 127, 0, 255))
+          updateRGBStrip(FRONT_STRIP)
+          updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
         case Bank1_Vol1:
           brightness[0]=map_range(value, 0, 127, 0, 255)
-          updateRGBStrip(0)
+          brightness[CONTROL_FRONT_LEDS]=map_range(32, 0, 127, 0, 255)
+          updateRGBStrip(FRONT_STRIP)
+          updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
 
         //Scene Strip
         case Bank1_Slidder2:
-          hue[1]=Number(map_range(value, 0, 127, 0, 360))
-          hsl[1]=converter(hue[1], saturation[1], lightness[1])
-          updateHSLStrip(1)
+          hue[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 360))
+          hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
+          hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          updateHSLStrip(SCENE_STRIP)
+          updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
         case Bank1_Slidder3:
-          saturation[1]=Number(map_range(value, 0, 127, 0, 1))
-          hsl[1]=converter(hue[1], saturation[1], lightness[1])
-          updateHSLStrip(1)
+          saturation[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 1))
+          hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
+          hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          updateHSLStrip(SCENE_STRIP)
+          updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
         case Bank1_Slidder4:
-          lightness[1]=Number(map_range(value, 0, 127, 0, 1))
-          hsl[1]=converter(hue[1], saturation[1], lightness[1])
-          updateHSLStrip(1)
+          lightness[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 1))
+          hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
+          hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          updateHSLStrip(SCENE_STRIP)
+          updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
         // Back Strip (White)
         case Bank1_Vol5:
           brightness[2]=map_range(value, 0, 127, 0, 255)
-          updateRGBStrip(2)
+          updateRGBStrip(BACK_STRIP)
           break;
             }
       break;
