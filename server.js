@@ -18,6 +18,7 @@ function waitForMidiCtrl() {
   // Get the name of a specified input port.
   for (i=0;i<nbItf;i++) {
     const midiDevice = input.getPortName(i) 
+    //console.log (midiDevice)
     //console.log(midiDevice);
     if (midiDevice.includes('WORLDE easy control MIDI')) {
       MidiDeviceIdx = i
@@ -75,6 +76,9 @@ const CONTROL_FRONT_LEDS = 2
 const BACK_STRIP = 3
 const CONTROL_SCENE_LEDS = 4
 
+//Programm
+var program = [];
+
 //RGB Mode
 var color= [];
 var brightness= [];
@@ -114,12 +118,18 @@ for (var i=0; i<indexes.length; i++) {
   updateRGBStrip(i)
 }
 
+//default value
+
 brightness[CONTROL_FRONT_LEDS]=map_range(32, 0, 127, 0, 255)
 updateRGBStrip(CONTROL_FRONT_LEDS)
+
 lightness[CONTROL_SCENE_LEDS]=Number(map_range(32, 0, 127, 0, 1))
-hue[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 360))
-saturation[SCENE_STRIP]=Number(map_range(32, 0, 127, 0, 1))
+lightness[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 1))
+hue[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 360))
+saturation[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 1))
+
 hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
 updateHSLStrip(CONTROL_SCENE_LEDS)
 
 const NoteOff = 128 // 0x80
@@ -145,6 +155,12 @@ const Bank1_Vol4 = 17
 const Bank1_Slidder5 = 7
 const Bank1_Vol5 = 18
 
+const Bank1_Touch1_Record = 44
+const Bank1_Touch2_Play = 45
+const Bank1_Touch3_Stop = 46
+const Bank1_Touch4_Erase = 49
+
+var playIdx=0
 
 
 // Configure a callback.
@@ -162,12 +178,13 @@ input.on('message', (deltaTime, message) => {
         case Bank1_Slidder1:
           color[FRONT_STRIP]=colorwheel(map_range(value, 0, 127, 0, 255))
           color[CONTROL_FRONT_LEDS]=colorwheel(map_range(value, 0, 127, 0, 255))
+          console.log(`FRONT STRIP : Color ${color[FRONT_STRIP]}`)
           updateRGBStrip(FRONT_STRIP)
           updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
         case Bank1_Vol1:
-          brightness[0]=map_range(value, 0, 127, 0, 255)
-          brightness[CONTROL_FRONT_LEDS]=map_range(32, 0, 127, 0, 255)
+          brightness[FRONT_STRIP]=map_range(value, 0, 127, 0, 255)
+          console.log(`FRONT STRIP : brightness ${brightness[FRONT_STRIP]}`)
           updateRGBStrip(FRONT_STRIP)
           updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
@@ -177,6 +194,7 @@ input.on('message', (deltaTime, message) => {
           hue[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 360))
           hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
           hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          console.log(`SCENE STRIP : hue ${hue[SCENE_STRIP]}`)
           updateHSLStrip(SCENE_STRIP)
           updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
@@ -184,6 +202,7 @@ input.on('message', (deltaTime, message) => {
           saturation[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 1))
           hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
           hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          console.log(`SCENE STRIP : saturation ${saturation[SCENE_STRIP]}`)
           updateHSLStrip(SCENE_STRIP)
           updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
@@ -191,15 +210,60 @@ input.on('message', (deltaTime, message) => {
           lightness[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 1))
           hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
           hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
+          console.log(`SCENE STRIP : lightness ${lightness[SCENE_STRIP]}`)
           updateHSLStrip(SCENE_STRIP)
           updateHSLStrip(CONTROL_SCENE_LEDS)
           break;
+
         // Back Strip (White)
         case Bank1_Vol5:
           brightness[BACK_STRIP]=map_range(value, 0, 127, 0, 255)
           updateRGBStrip(BACK_STRIP)
           break;
-            }
+
+        case Bank1_Touch1_Record:
+          if (value>=127) {
+            program.push([
+              {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP]},
+              {'strip':FRONT_STRIP, 'brightness':brightness[FRONT_STRIP]},
+              {'strip':CONTROL_FRONT_LEDS, 'color':color[CONTROL_FRONT_LEDS]},
+              {'strip':SCENE_STRIP, 'hsl':hsl[SCENE_STRIP]},
+              {'strip':CONTROL_SCENE_LEDS, 'hsl':hsl[CONTROL_SCENE_LEDS]}])
+            console.log(program[program.length-1]) 
+          }
+          break;
+        case Bank1_Touch3_Stop:
+          if (value>=127) {
+            playIdx = 0;
+          }
+          break;
+        case Bank1_Touch2_Play:
+          if (program.length<1) {
+            break
+          }
+          if (value>=127) {
+            console.log (`Play index ${playIdx}`)
+            console.log(program[playIdx]) 
+            color[FRONT_STRIP] = program[playIdx][0].color
+            brightness[FRONT_STRIP] = program[playIdx][1].brightness
+            color[CONTROL_FRONT_LEDS]=program[playIdx][2].color
+            updateRGBStrip(FRONT_STRIP)
+            updateRGBStrip(CONTROL_FRONT_LEDS)
+            hsl[SCENE_STRIP] = program[playIdx][3].hsl
+            hsl[CONTROL_SCENE_LEDS]=program[playIdx][4].hsl
+            updateHSLStrip(SCENE_STRIP)
+            updateHSLStrip(CONTROL_SCENE_LEDS)
+            playIdx=(playIdx+1)%program.length
+          }
+          break;
+        case Bank1_Touch4_Erase:
+          if (value>=127) {
+            program=[]
+            playIdx = 0;
+            console.log(program) 
+          }
+          break;
+        }
       break;
   }
 
