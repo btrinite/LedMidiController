@@ -1,6 +1,30 @@
 const midi = require('midi');
-const ws281x = require('rpi-ws281x-native');
+
+var isPi = require('detect-rpi');
+var ws281x = {}
+
+if (isPi()) {
+  ws281x = require('rpi-ws281x-native');
+} else {
+
+  const RPI_WS281X_fake = {
+    num: 0,
+    config: {},
+    init: function(num, config) {
+      console.log(`WS281x init for ${num} leds`);
+      this.num=num
+      this.config=config
+    },
+    render: function(strip) {
+      console.log(`WS281x render`);
+    }
+  };
+
+  ws281x = Object.create(RPI_WS281X_fake);
+}
+
 const converter = require('hsl-to-rgb-for-reals');
+
 
 // Setup Led Strip interface
 var NUM_LEDS = 163
@@ -161,8 +185,59 @@ const Bank1_Touch2_Play = 45
 const Bank1_Touch3_Stop = 46
 const Bank1_Touch4_Erase = 49
 
+const Bank1_SW1 = 23
+const Bank1_SW2 = 24
+const Bank1_SW3 = 25
+const Bank1_SW4 = 26
+const Bank1_SW5 = 27
+const Bank1_SW6 = 28
+const Bank1_SW7 = 29
+const Bank1_SW8 = 30
+
+const Bank1_CROSSFADER = 9
+const Bank1_KNOB = 10
+
 var playIdx=0
 
+animateEnabled=false
+tick=0;
+
+function enableAnimate(){
+  tick=0
+  animateEnabled = true
+}
+
+function disableAnimate() {
+  animateEnabled=false
+}
+
+var RainbowOffset = 0;
+
+function RainbowTick (strip) {
+  var _this = this;
+  for (var i = indexes[strip].start; i < indexes[strip].start+indexes[strip].length; i++) {
+    pixelData[i] = colorwheel((RainbowOffset + i) % 256);
+  }
+
+  RainbowOffset = (RainbowOffset + 1) % 256;
+
+  updateRGBStrip(FRONT_STRIP)
+}; 
+
+function animate () {
+  if (animateEnabled) {
+    tick++
+    if (tick%100 == 0) {
+      //sec
+      console.log ("Tick 1s")
+    }
+    if (tick%10 == 0) {
+      //100ms
+      RainbowTick(FRONT_STRIP)
+    }
+    //10ms  
+  }
+}
 
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
@@ -174,6 +249,7 @@ input.on('message', (deltaTime, message) => {
   [type, key, value] = message
   switch (type) {
     case ControlChange:
+      console.log (key)
       switch (key) {
         //Front Strip
         case Bank1_Slidder1:
@@ -219,11 +295,13 @@ input.on('message', (deltaTime, message) => {
         // Back Strip (White)
         case Bank1_Vol5:
           brightness[BACK_STRIP]=map_range(value, 0, 127, 0, 255)
+          console.log(`BACK STRIP : brightness ${brightness[BACK_STRIP]}`)
           updateRGBStrip(BACK_STRIP)
           break;
 
         case Bank1_Touch1_Record:
           if (value>=127) {
+            console.log(`PROG : Record`)
             program.push([
               {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP]},
               {'strip':FRONT_STRIP, 'brightness':brightness[FRONT_STRIP]},
@@ -235,6 +313,7 @@ input.on('message', (deltaTime, message) => {
           break;
         case Bank1_Touch3_Stop:
           if (value>=127) {
+            console.log(`PROG : Stop`)
             playIdx = 0;
           }
           break;
@@ -243,6 +322,7 @@ input.on('message', (deltaTime, message) => {
             break
           }
           if (value>=127) {
+            console.log(`PROG : Play`)
             console.log (`Play index ${playIdx}`)
             console.log(program[playIdx]) 
             color[FRONT_STRIP] = program[playIdx][0].color
@@ -259,11 +339,22 @@ input.on('message', (deltaTime, message) => {
           break;
         case Bank1_Touch4_Erase:
           if (value>=127) {
+            console.log(`PROG : Reset`)
             program=[]
             playIdx = 0;
             console.log(program) 
           }
           break;
+        case Bank1_SW1:
+          if (value>=127) {
+            console.log(`ANIM : On`)
+            enableAnimate()
+          } else {
+            console.log(`ANIM : Off`)
+            disableAnimate() 
+          }
+          break;
+
         }
       break;
   }
@@ -289,7 +380,8 @@ input.ignoreTypes(false, false, false);
  
 // Close the port when done.
 
-setInterval(function() {
-  //do nothing
-  // input.closePort();
-}, 100000);
+(function wait () {
+  if (!false) setTimeout(wait, 10);
+  animate ()
+
+})();
