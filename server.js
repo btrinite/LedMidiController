@@ -1,5 +1,4 @@
 const midi = require('midi');
-
 var isPi = require('detect-rpi');
 var ws281x = {}
 
@@ -106,7 +105,7 @@ const CONTROL_SCENE_LEDS = 4
 var program = [];
 
 //RGB Mode
-var color= [[]];
+var color= [];
 var brightness= [];
 
 //HSL Mode
@@ -117,9 +116,9 @@ var lightness=[]
 
 function updateRGBStrip(idx) {
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
-    r=(((color[idx][i] & 0xff0000) >> 16) * brightness[idx])/255
-    g=(((color[idx][i] & 0xff00) >> 8) * brightness[idx])/255
-    b=((color[idx][i] & 0xff) * brightness[idx])/255
+    r=(((color[idx].leds[i] & 0xff0000) >> 16) * brightness[idx])/255
+    g=(((color[idx].leds[i] & 0xff00) >> 8) * brightness[idx])/255
+    b=((color[idx].leds[i] & 0xff) * brightness[idx])/255
     pixelData[i] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
@@ -133,11 +132,11 @@ function updateHSLStrip(idx) {
 }
 
 for (var i=0; i<indexes.length; i++) {
-  for (var j=0; j<indexes[idx].length; j++) {
-    color[i][j] = rgb2Int(255, 255, 255)
+  color[i]={leds:[]}
+  for (var j=0; j<indexes[i].length; j++) {
+    color[i].leds[j] = rgb2Int(255, 255, 255)
   }
   brightness[i] = 0
-
   hue[i]=0
   saturation[i]=0
   lightness[i]=0
@@ -204,9 +203,9 @@ var playIdx=0
 animateEnabled=false
 tick=0;
 
-function setAllLedColor (strip, color) {
-  for (var j=0; j<indexes[idx].length; j++) {
-    color[strip][j] = color
+function setAllLedColor (strip, newcolor) {
+  for (var j=0; j<indexes[strip].length; j++) {
+    color[strip].leds[j] = newcolor
   }
 }
 function enableAnimate(){
@@ -223,7 +222,7 @@ var RainbowOffset = 0;
 function RainbowTick (strip) {
   var _this = this;
   for (var i = indexes[strip].start; i < indexes[strip].start+indexes[strip].length; i++) {
-    color[strip][i] = colorwheel((RainbowOffset + i) % 256);
+    color[strip].leds[i] = colorwheel((RainbowOffset + i) % 256);
   }
 
   RainbowOffset = (RainbowOffset + 1) % 256;
@@ -262,7 +261,7 @@ input.on('message', (deltaTime, message) => {
         case Bank1_Slidder1:
           setAllLedColor(FRONT_STRIP, colorwheel(map_range(value, 0, 127, 0, 255)))
           setAllLedColor(CONTROL_FRONT_LEDS, colorwheel(map_range(value, 0, 127, 0, 255)))
-          console.log(`FRONT STRIP : Color ${color[FRONT_STRIP][0]}`)
+          console.log(`FRONT STRIP : Color ${color[FRONT_STRIP].leds[0]}`)
           updateRGBStrip(FRONT_STRIP)
           updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
@@ -310,9 +309,9 @@ input.on('message', (deltaTime, message) => {
           if (value>=127) {
             console.log(`PROG : Record`)
             program.push([
-              {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP][0]},
+              {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP].leds[0]},
               {'strip':FRONT_STRIP, 'brightness':brightness[FRONT_STRIP]},
-              {'strip':CONTROL_FRONT_LEDS, 'color':color[CONTROL_FRONT_LEDS][0]},
+              {'strip':CONTROL_FRONT_LEDS, 'color':color[CONTROL_FRONT_LEDS].leds[0]},
               {'strip':SCENE_STRIP, 'hsl':hsl[SCENE_STRIP]},
               {'strip':CONTROL_SCENE_LEDS, 'hsl':hsl[CONTROL_SCENE_LEDS]}])
             console.log(program[program.length-1]) 
