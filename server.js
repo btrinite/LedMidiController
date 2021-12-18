@@ -106,7 +106,7 @@ const CONTROL_SCENE_LEDS = 4
 var program = [];
 
 //RGB Mode
-var color= [];
+var color= [[]];
 var brightness= [];
 
 //HSL Mode
@@ -117,9 +117,9 @@ var lightness=[]
 
 function updateRGBStrip(idx) {
   for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
-    r=(((color[idx] & 0xff0000) >> 16) * brightness[idx])/255
-    g=(((color[idx] & 0xff00) >> 8) * brightness[idx])/255
-    b=((color[idx] & 0xff) * brightness[idx])/255
+    r=(((color[idx][i] & 0xff0000) >> 16) * brightness[idx])/255
+    g=(((color[idx][i] & 0xff00) >> 8) * brightness[idx])/255
+    b=((color[idx][i] & 0xff) * brightness[idx])/255
     pixelData[i] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
@@ -133,8 +133,9 @@ function updateHSLStrip(idx) {
 }
 
 for (var i=0; i<indexes.length; i++) {
-  
-  color[i] = rgb2Int(255, 255, 255)
+  for (var j=0; j<indexes[idx].length; j++) {
+    color[i][j] = rgb2Int(255, 255, 255)
+  }
   brightness[i] = 0
 
   hue[i]=0
@@ -203,6 +204,11 @@ var playIdx=0
 animateEnabled=false
 tick=0;
 
+function setAllLedColor (strip, color) {
+  for (var j=0; j<indexes[idx].length; j++) {
+    color[strip][j] = color
+  }
+}
 function enableAnimate(){
   tick=0
   animateEnabled = true
@@ -217,7 +223,7 @@ var RainbowOffset = 0;
 function RainbowTick (strip) {
   var _this = this;
   for (var i = indexes[strip].start; i < indexes[strip].start+indexes[strip].length; i++) {
-    pixelData[i] = colorwheel((RainbowOffset + i) % 256);
+    color[strip][i] = colorwheel((RainbowOffset + i) % 256);
   }
 
   RainbowOffset = (RainbowOffset + 1) % 256;
@@ -254,9 +260,9 @@ input.on('message', (deltaTime, message) => {
       switch (key) {
         //Front Strip
         case Bank1_Slidder1:
-          color[FRONT_STRIP]=colorwheel(map_range(value, 0, 127, 0, 255))
-          color[CONTROL_FRONT_LEDS]=colorwheel(map_range(value, 0, 127, 0, 255))
-          console.log(`FRONT STRIP : Color ${color[FRONT_STRIP]}`)
+          setAllLedColor(FRONT_STRIP, colorwheel(map_range(value, 0, 127, 0, 255)))
+          setAllLedColor(CONTROL_FRONT_LEDS, colorwheel(map_range(value, 0, 127, 0, 255)))
+          console.log(`FRONT STRIP : Color ${color[FRONT_STRIP][0]}`)
           updateRGBStrip(FRONT_STRIP)
           updateRGBStrip(CONTROL_FRONT_LEDS)
           break;
@@ -304,9 +310,9 @@ input.on('message', (deltaTime, message) => {
           if (value>=127) {
             console.log(`PROG : Record`)
             program.push([
-              {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP]},
+              {'strip':FRONT_STRIP, 'color':color[FRONT_STRIP][0]},
               {'strip':FRONT_STRIP, 'brightness':brightness[FRONT_STRIP]},
-              {'strip':CONTROL_FRONT_LEDS, 'color':color[CONTROL_FRONT_LEDS]},
+              {'strip':CONTROL_FRONT_LEDS, 'color':color[CONTROL_FRONT_LEDS][0]},
               {'strip':SCENE_STRIP, 'hsl':hsl[SCENE_STRIP]},
               {'strip':CONTROL_SCENE_LEDS, 'hsl':hsl[CONTROL_SCENE_LEDS]}])
             console.log(program[program.length-1]) 
@@ -326,9 +332,9 @@ input.on('message', (deltaTime, message) => {
             console.log(`PROG : Play`)
             console.log (`Play index ${playIdx}`)
             console.log(program[playIdx]) 
-            color[FRONT_STRIP] = program[playIdx][0].color
+            setAllLedColor(FRONT_STRIP, program[playIdx][0].color)
             brightness[FRONT_STRIP] = program[playIdx][1].brightness
-            color[CONTROL_FRONT_LEDS]=program[playIdx][2].color
+            setAllLedColor(CONTROL_FRONT_LEDS, program[playIdx][2].color)
             updateRGBStrip(FRONT_STRIP)
             updateRGBStrip(CONTROL_FRONT_LEDS)
             hsl[SCENE_STRIP] = program[playIdx][3].hsl
