@@ -70,6 +70,7 @@ setInterval(function () {
 */
 
 const indexes = [{start:0, length:106}, {start:106, length:37}, {start:143, length:2}, {start:145, length:16}, {start:161, length:2}]
+//const indexes = [{start:0, length:46}, {start:106, length:37}, {start:143, length:2}, {start:145, length:16}, {start:161, length:2}]
 const FRONT_STRIP = 0
 const SCENE_STRIP = 1
 const CONTROL_FRONT_LEDS = 2
@@ -125,7 +126,7 @@ updateRGBStrip(CONTROL_FRONT_LEDS)
 
 lightness[CONTROL_SCENE_LEDS]=Number(map_range(32, 0, 127, 0, 1))
 lightness[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 1))
-hue[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 360))
+hue[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 359))
 saturation[SCENE_STRIP]=Number(map_range(0, 0, 127, 0, 1))
 
 hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
@@ -191,7 +192,7 @@ input.on('message', (deltaTime, message) => {
 
         //Scene Strip
         case Bank1_Slidder2:
-          hue[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 360))
+          hue[SCENE_STRIP]=Number(map_range(value, 0, 127, 0, 359))
           hsl[SCENE_STRIP]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[SCENE_STRIP])
           hsl[CONTROL_SCENE_LEDS]=converter(hue[SCENE_STRIP], saturation[SCENE_STRIP], lightness[CONTROL_SCENE_LEDS])
           console.log(`SCENE STRIP : hue ${hue[SCENE_STRIP]}`)
