@@ -5,6 +5,7 @@ var ws281x = {}
 
 if (isPi()) {
   ws281x = require('rpi-ws281x-native');
+  console.log(`Raspberry detected !`);
 } else {
 
   const RPI_WS281X_fake = {
