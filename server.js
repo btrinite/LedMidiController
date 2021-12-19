@@ -223,7 +223,7 @@ animateEnabled=false
 tick=0;
 animateSpeed=100
 animateIndex=0
-AnimQt=3
+AnimQt=4
 
 function enableAnimate(){
   tick=0
@@ -233,6 +233,13 @@ function enableAnimate(){
 function disableAnimate() {
   animateEnabled=false
 }
+
+function getRandomInt (min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+//////////////////////////////
+/// Rainbow
+//////////////////////////////
 
 var RainbowOffset = 0;
 
@@ -246,6 +253,10 @@ function RainbowTick (strip) {
   updateRGBStrip(strip)
 }; 
 
+//////////////////////////////
+/// XMAS
+//////////////////////////////
+
 var XmasRed = 0xff0000;
 var XmasGreen = 0x00ff00;
 var XmasBlue = 0x0000ff;
@@ -255,9 +266,7 @@ var DanceWidth = 15;
 var DanceArray = [];
 var XmasIterateOffset = 0;
 
-function getRandomInt (min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+
 
 function RandomXmasColor () {
   var xmasLight = getRandomInt(1, 4);
@@ -311,8 +320,11 @@ function XmasIterateTick (strip) {
 
 };
 
+//////////////////////////////
+/// Twinkle
+//////////////////////////////
+
 var WasTwinkling = false;
-var TwinkleSpeed = 250;
 var LastStates = [];
 
 // Good, white colors to use to simulate starry nights :)
@@ -390,6 +402,38 @@ function TwinkleTick(strip) {
   }
 }
 
+
+//////////////////////////////
+/// Dance
+//////////////////////////////
+
+var danceLedIndex = 0;
+var danceIterationIndex = 0;
+var danceMaxIterations = 256 * 5;
+
+
+
+function DanceTick (strip) {
+
+  if (danceIterationIndex < danceMaxIterations) {
+    if (danceLedIndex < indexes[strip].length) {
+      color[strip].leds[danceLedIndex] = colorWheel(
+        ((danceLedIndex * 256) / indexes[strip].length + danceIterationIndex) & 255
+      );
+
+      danceLedIndex++;
+    } else {
+      danceLedIndex = 0;
+      danceIterationIndex++;
+    }
+  } else {
+    danceLedIndex = 0;
+    danceIterationIndex = 0;
+  }
+
+  updateRGBStrip(strip)
+};
+
 function initAnim (idx) {
   switch (idx) {
     case 0:
@@ -417,7 +461,9 @@ function animate () {
         case 2:
           TwinkleTick(FRONT_STRIP)
         break;
-
+        case 4:
+          DanceTick(FRONT_STRIP)
+        break;
       }
     }
   }
