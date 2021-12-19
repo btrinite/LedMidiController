@@ -244,7 +244,6 @@ function animate () {
   if (animateEnabled) {
     tick++
     if (tick%animateSpeed == 0) {
-      //100ms
       RainbowTick(FRONT_STRIP)
     }
   }
@@ -366,7 +365,7 @@ input.on('message', (deltaTime, message) => {
           }
           break;
           case Bank1_Vol8:
-            animateSpeed=map_range(value, 0, 127, 1, 200)
+            animateSpeed=map_range(value, 0, 127, 200, 1)
           break;
 
         }
@@ -395,7 +394,7 @@ input.ignoreTypes(false, false, false);
 // Close the port when done.
 
 (function wait () {
-  if (!false) setTimeout(wait, 10);
+  if (!false) setTimeout(wait, 1);
   animate ()
 
 })();
