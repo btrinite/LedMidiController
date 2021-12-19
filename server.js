@@ -461,7 +461,7 @@ function animate () {
         case 2:
           TwinkleTick(FRONT_STRIP)
         break;
-        case 4:
+        case 3:
           DanceTick(FRONT_STRIP)
         break;
       }
