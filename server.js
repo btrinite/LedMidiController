@@ -417,7 +417,7 @@ function DanceTick (strip) {
 
   if (danceIterationIndex < danceMaxIterations) {
     if (danceLedIndex < indexes[strip].length) {
-      color[strip].leds[danceLedIndex] = colorWheel(
+      color[strip].leds[danceLedIndex] = colorwheel(
         ((danceLedIndex * 256) / indexes[strip].length + danceIterationIndex) & 255
       );
 
