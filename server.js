@@ -181,6 +181,15 @@ const Bank1_Vol4 = 17
 const Bank1_Slidder5 = 7
 const Bank1_Vol5 = 18
 
+const Bank1_Slidder6 = 8
+const Bank1_Vol6 = 19
+
+const Bank1_Slidder7 = 9
+const Bank1_Vol7 = 20
+
+const Bank1_Slidder8 = 10
+const Bank1_Vol8 = 21
+
 const Bank1_Touch1_Record = 44
 const Bank1_Touch2_Play = 45
 const Bank1_Touch3_Stop = 46
@@ -202,6 +211,7 @@ var playIdx=0
 
 animateEnabled=false
 tick=0;
+animateSpeed=1
 
 function setAllLedColor (strip, newcolor) {
   for (var j=0; j<indexes[strip].length; j++) {
@@ -233,15 +243,10 @@ function RainbowTick (strip) {
 function animate () {
   if (animateEnabled) {
     tick++
-    if (tick%100 == 0) {
-      //sec
-      console.log ("Tick 1s")
-    }
-    if (tick%10 == 0) {
+    if (tick%animateSpeed == 0) {
       //100ms
       RainbowTick(FRONT_STRIP)
     }
-    //10ms  
   }
 }
 
@@ -351,7 +356,7 @@ input.on('message', (deltaTime, message) => {
             console.log(program) 
           }
           break;
-        case Bank1_SW1:
+        case Bank1_SW8:
           if (value>=127) {
             console.log(`ANIM : On`)
             enableAnimate()
@@ -359,6 +364,9 @@ input.on('message', (deltaTime, message) => {
             console.log(`ANIM : Off`)
             disableAnimate() 
           }
+          break;
+          case Bank1_Vol8:
+            animateSpeed=map_range(value, 0, 127, 1, 200)
           break;
 
         }
