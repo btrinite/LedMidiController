@@ -481,8 +481,12 @@ function animate () {
 
 function lightening (strip) {
 
+  setStripColor(strip, rgb2Int(0,0,0))
+  brightness[strip]=200
+  updateRGBStrip(strip)
   num = getRandomInt(1,3)
 
+  brightness[idx]
   for (i = 0; i < num; i++) {
     setStripColor(strip, rgb2Int(255,255,255))
     updateRGBStrip(strip)
