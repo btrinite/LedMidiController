@@ -174,6 +174,10 @@ const ProgramChange = 192 // 0xC0
 const ChannelPressure = 208 // 0xD0
 const PitchBend = 224 //0xE0
 
+
+const leftPush = 67 
+const rightPush = 64 
+
 const Bank1_Slidder1 = 3
 const Bank1_Vol1 = 14
 
@@ -469,6 +473,25 @@ function animate () {
   }
 }
 
+//////////////////////////////
+/// SCENE EFFECT
+//////////////////////////////
+
+function lightening (strip) {
+
+  num = getRandomInt(1,3)
+
+  for (i = 0; i < num; i++) {
+    setStripColor(strip, rgb2Int(255,255,255))
+    updateRGBStrip(strip)
+    setStripColor(strip, rgb2Int(0,0,0))
+    updateRGBStrip(strip)
+  }
+  setStripColor(strip, rgb2Int(0,0,0))
+  updateRGBStrip(strip)
+}
+
+
 // Configure a callback.
 input.on('message', (deltaTime, message) => {
   // The message is an array of numbers corresponding to the MIDI bytes:
@@ -595,6 +618,20 @@ input.on('message', (deltaTime, message) => {
               initAnim(animateIndex)
               console.log (`Anime : Select ${animateIndex}`)
             }
+            break;
+
+            case Bank1_Touch6_RW :
+              if (value>=127) {
+                animateIndex=(animateIndex+1)%AnimQt
+                initAnim(animateIndex)
+                console.log (`Anime : Select ${animateIndex}`)
+              }
+              break;
+  
+            case leftPush:
+              if (value>=127) {
+                lightening(FRONT_STRIP)
+              }
             break;
         }
       break;
