@@ -483,6 +483,7 @@ function lightening (strip) {
 
   setStripColor(strip, rgb2Int(0,0,0))
   brightness[strip]=200
+
   updateRGBStrip(strip)
   num = getRandomInt(1,3)
 
@@ -495,6 +496,7 @@ function lightening (strip) {
     updateRGBStrip(strip)
   }
   setStripColor(strip, rgb2Int(0,0,0))
+  brightness[strip]=0
   updateRGBStrip(strip)
 }
 
