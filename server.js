@@ -430,7 +430,7 @@ function DanceTick (strip) {
       danceLedIndex++;
     } else {
       danceLedIndex = 0;
-      danceIterationIndex++;
+      danceIterationIndex+=10;
     }
   } else {
     danceLedIndex = 0;
