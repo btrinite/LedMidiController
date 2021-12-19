@@ -1,5 +1,7 @@
 const midi = require('midi');
 var isPi = require('detect-rpi');
+var sleep = require('sleep');
+
 var ws281x = {}
 
 if (isPi()) {
@@ -484,6 +486,7 @@ function lightening (strip) {
   for (i = 0; i < num; i++) {
     setStripColor(strip, rgb2Int(255,255,255))
     updateRGBStrip(strip)
+    sleep.msleep(getRandomInt(10,100))
     setStripColor(strip, rgb2Int(0,0,0))
     updateRGBStrip(strip)
   }
@@ -622,7 +625,7 @@ input.on('message', (deltaTime, message) => {
 
             case Bank1_Touch6_RW :
               if (value>=127) {
-                animateIndex=(animateIndex+1)%AnimQt
+                animateIndex=(animateIndex-1)%AnimQt
                 initAnim(animateIndex)
                 console.log (`Anime : Select ${animateIndex}`)
               }
@@ -630,7 +633,7 @@ input.on('message', (deltaTime, message) => {
   
             case leftPush:
               if (value>=127) {
-                lightening(FRONT_STRIP)
+                lightening(SCENE_STRIP)
               }
             break;
         }
