@@ -115,11 +115,11 @@ var saturation=[]
 var lightness=[]
 
 function updateRGBStrip(idx) {
-  for (var i = indexes[idx].start; i < indexes[idx].start+indexes[idx].length; i++) {
+  for (var i = 0; i < indexes[idx].length; i++) {
     r=(((color[idx].leds[i] & 0xff0000) >> 16) * brightness[idx])/255
     g=(((color[idx].leds[i] & 0xff00) >> 8) * brightness[idx])/255
     b=((color[idx].leds[i] & 0xff) * brightness[idx])/255
-    pixelData[i] = rgb2Int(r, g, b)
+    pixelData[i+indexes[idx].start] = rgb2Int(r, g, b)
   }
   ws281x.render(pixelData);  
 }
@@ -231,7 +231,7 @@ var RainbowOffset = 0;
 
 function RainbowTick (strip) {
   var _this = this;
-  for (var i = indexes[strip].start; i < indexes[strip].start+indexes[strip].length; i++) {
+  for (var i = 0; i < indexes[strip].length; i++) {
     color[strip].leds[i] = colorwheel((RainbowOffset + i) % 256);
   }
 
@@ -365,7 +365,7 @@ input.on('message', (deltaTime, message) => {
           }
           break;
           case Bank1_Vol8:
-            animateSpeed=map_range(value, 0, 127, 200, 1)
+            animateSpeed=201-map_range(value, 0, 127, 1, 200)
           break;
 
         }
