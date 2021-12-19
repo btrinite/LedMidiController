@@ -131,6 +131,14 @@ function updateHSLStrip(idx) {
   ws281x.render(pixelData);  
 }
 
+
+function setStripColor (strip, newcolor) {
+  for (var j=0; j<indexes[strip].length; j++) {
+    color[strip].leds[j] = newcolor
+  }
+}
+
+
 for (var i=0; i<indexes.length; i++) {
   color[i]={leds:[]}
   for (var j=0; j<indexes[i].length; j++) {
@@ -194,6 +202,8 @@ const Bank1_Touch1_Record = 44
 const Bank1_Touch2_Play = 45
 const Bank1_Touch3_Stop = 46
 const Bank1_Touch4_Erase = 49
+const Bank1_Touch5_FF = 48
+const Bank1_Touch6_RW = 47
 
 const Bank1_SW1 = 23
 const Bank1_SW2 = 24
@@ -211,13 +221,10 @@ var playIdx=0
 
 animateEnabled=false
 tick=0;
-animateSpeed=1
+animateSpeed=100
+animateIndex=0
+AnimQt=3
 
-function setAllLedColor (strip, newcolor) {
-  for (var j=0; j<indexes[strip].length; j++) {
-    color[strip].leds[j] = newcolor
-  }
-}
 function enableAnimate(){
   tick=0
   animateEnabled = true
@@ -230,21 +237,188 @@ function disableAnimate() {
 var RainbowOffset = 0;
 
 function RainbowTick (strip) {
-  var _this = this;
   for (var i = 0; i < indexes[strip].length; i++) {
     color[strip].leds[i] = colorwheel((RainbowOffset + i) % 256);
   }
 
   RainbowOffset = (RainbowOffset + 1) % 256;
 
-  updateRGBStrip(FRONT_STRIP)
+  updateRGBStrip(strip)
 }; 
+
+var XmasRed = 0xff0000;
+var XmasGreen = 0x00ff00;
+var XmasBlue = 0x0000ff;
+var XmasWhite = 0xffffff;
+
+var DanceWidth = 15;
+var DanceArray = [];
+var XmasIterateOffset = 0;
+
+function getRandomInt (min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+function RandomXmasColor () {
+  var xmasLight = getRandomInt(1, 4);
+  var xmasColor = XmasRed;
+  switch (xmasLight) {
+    case 1:
+      xmasColor = XmasRed;
+      break;
+    case 2:
+      xmasColor = XmasGreen;
+      break;
+    case 3:
+      xmasColor = XmasBlue;
+      break;
+    case 4:
+      xmasColor = XmasWhite;
+      break;
+  }
+  return xmasColor;
+};
+
+function XmasIterateTick (strip) {
+
+  setStripColor(FRONT_STRIP,rgb2Int(255, 255, 255));
+  var DanceArrayIndex = 0;
+  var x = 0 + XmasIterateOffset;
+  for (x; x < indexes[strip].length; x++) {
+    if (DanceArrayIndex < DanceWidth) {
+      color[strip].leds[x] = DanceArray[DanceArrayIndex];
+    }
+    DanceArrayIndex++;
+  }
+  DanceArrayIndex = 0;
+  var y = indexes[strip].length - XmasIterateOffset;
+  for (y; y > 0; y--) {
+    if (DanceArrayIndex < DanceWidth) {
+      color[strip].leds[y] = DanceArray[DanceArrayIndex];
+    }
+    DanceArrayIndex++;
+  }
+
+  XmasIterateOffset++;
+  if (XmasIterateOffset > indexes[strip].length) {
+    XmasIterateOffset = 0;
+    for (var d = 0; d < DanceWidth; d++) {
+      DanceArray[d] = RandomXmasColor();
+    }
+  }
+
+  updateRGBStrip(strip)
+
+};
+
+var WasTwinkling = false;
+var TwinkleSpeed = 250;
+var LastStates = [];
+
+// Good, white colors to use to simulate starry nights :)
+var TwinkleColors = [
+  0xffffff,
+  0xfcfcfc,
+  0xfafafa,
+  0xf7f7f7,
+  0xf5f5f5,
+  0xf2f2f2,
+  0xf0f0f0,
+  0xededed,
+  0xebebeb,
+  0xe8e8e8,
+  0xe5e5e5,
+  0xe3e3e3,
+  0xe0e0e0,
+  0xdedede,
+  0xdbdbdb,
+  0xd9d9d9,
+  0xd6d6d6,
+  0xd4d4d4,
+  0xd1d1d1,
+  0xcfcfcf,
+  0xcccccc,
+  0xc9c9c9,
+  0xc7c7c7,
+  0xc4c4c4,
+  0xc2c2c2,
+  0xbfbfbf,
+  0xbdbdbd,
+  0xbababa,
+  0xb8b8b8,
+  0xb5b5b5,
+  0xb3b3b3,
+  0xb0b0b0,
+];
+
+function GetNextColor (col, rand) {
+  var ind = TwinkleColors.indexOf(col);
+  if (ind == TwinkleColors.length + 1) {
+    // choose the first
+    return TwinkleColors[0];
+  } else {
+    // choose the next
+    return TwinkleColors[ind + 1];
+  }
+};
+
+function TwinkleTick(strip) {
+
+  if (!WasTwinkling) {
+    for (var x = 0; x < indexes[strip].length; x++) {
+      // choose a random init point
+      var init = getRandomInt(0, TwinkleColors.length - 1);
+      LastStates[x] = TwinkleColors[init]; // default white color
+      color[strip].leds[x] = LastStates[x];
+    }
+
+    updateRGBStrip(strip)
+    WasTwinkling = true;
+  } else {
+    for (var x = 0; x < indexes[strip].length; x++) {
+      var shouldTwinkle = getRandomInt(0, 100);
+      if (shouldTwinkle > 10) {
+        // only a 50% chance of twinkling
+        var currentColor = LastStates[x];
+        var newColor = GetNextColor(currentColor);
+        LastStates[x] = newColor;
+        color[strip].leds[x] = LastStates[x];
+      }
+    }
+
+    updateRGBStrip(strip)
+  }
+}
+
+function initAnim (idx) {
+  switch (idx) {
+    case 0:
+    break;
+    case 1:
+      for (var d = 0; d < DanceWidth; d++) {
+        DanceArray[d] = RandomXmasColor();
+      }
+    break;
+  }
+}
 
 function animate () {
   if (animateEnabled) {
     tick++
     if (tick%animateSpeed == 0) {
-      RainbowTick(FRONT_STRIP)
+      console.log(`Animate`)
+      switch (animateIndex) {
+        case 0:
+          RainbowTick(FRONT_STRIP)
+          break;
+        case 1:
+          XmasIterateTick(FRONT_STRIP)
+          break;
+        case 2:
+          TwinkleTick(FRONT_STRIP)
+        break;
+
+      }
     }
   }
 }
@@ -263,8 +437,8 @@ input.on('message', (deltaTime, message) => {
       switch (key) {
         //Front Strip
         case Bank1_Slidder1:
-          setAllLedColor(FRONT_STRIP, colorwheel(map_range(value, 0, 127, 0, 255)))
-          setAllLedColor(CONTROL_FRONT_LEDS, colorwheel(map_range(value, 0, 127, 0, 255)))
+          setStripColor(FRONT_STRIP, colorwheel(map_range(value, 0, 127, 0, 255)))
+          setStripColor(CONTROL_FRONT_LEDS, colorwheel(map_range(value, 0, 127, 0, 255)))
           console.log(`FRONT STRIP : Color ${color[FRONT_STRIP].leds[0]}`)
           updateRGBStrip(FRONT_STRIP)
           updateRGBStrip(CONTROL_FRONT_LEDS)
@@ -335,9 +509,9 @@ input.on('message', (deltaTime, message) => {
             console.log(`PROG : Play`)
             console.log (`Play index ${playIdx}`)
             console.log(program[playIdx]) 
-            setAllLedColor(FRONT_STRIP, program[playIdx][0].color)
+            setStripColor(FRONT_STRIP, program[playIdx][0].color)
             brightness[FRONT_STRIP] = program[playIdx][1].brightness
-            setAllLedColor(CONTROL_FRONT_LEDS, program[playIdx][2].color)
+            setStripColor(CONTROL_FRONT_LEDS, program[playIdx][2].color)
             updateRGBStrip(FRONT_STRIP)
             updateRGBStrip(CONTROL_FRONT_LEDS)
             hsl[SCENE_STRIP] = program[playIdx][3].hsl
@@ -365,9 +539,17 @@ input.on('message', (deltaTime, message) => {
           }
           break;
           case Bank1_Vol8:
-            animateSpeed=201-map_range(value, 0, 127, 1, 200)
+            animateSpeed=201-Math.round(map_range(value, 0, 127, 1, 200))
+            console.log (`Animation speed set to ${animateSpeed}`)
           break;
 
+          case Bank1_Touch5_FF :
+            if (value>=127) {
+              animateIndex=(animateIndex+1)%AnimQt
+              initAnim(animateIndex)
+              console.log (`Anime : Select ${animateIndex}`)
+            }
+            break;
         }
       break;
   }
